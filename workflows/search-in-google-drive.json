@@ -1,0 +1,293 @@
+{
+  "name": "Search in Google Drive",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "96c3f169-4631-497d-a28a-866df87f8f00",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "YOUR_ID"
+          }
+        },
+        "options": {
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        176,
+        480
+      ],
+      "id": "ae017962-7e53-4090-b741-612bffb57c30",
+      "name": "List files"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "77fc61c5-d964-4bd6-92ae-cd7599ac1f44",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "=application/vnd.google-apps.document",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        480
+      ],
+      "id": "9211ac6f-f387-4c7c-adbe-0041587b91c1",
+      "name": "Filter only application/vnd.google-apps.document"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        592,
+        480
+      ],
+      "id": "7d119f87-2ef3-4d74-9894-0de6e44866b3",
+      "name": "Get a document"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65446488-42f4-47d0-8b32-0fd5e712ba2c",
+              "name": "query",
+              "value": "={{ $json.query }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        480
+      ],
+      "id": "47e8689e-68bf-41fa-a76b-26e87ba47839",
+      "name": "KeyWords"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d55f156a-41c3-4ba9-b11d-c6d6413516a1",
+              "leftValue": "={{ $json.content.toLowerCase() }}",
+              "rightValue": "={{ $('KeyWords').first().json.query.toLowerCase() }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        480
+      ],
+      "id": "c543d75d-0f4d-4236-a53e-c9cec99dcd62",
+      "name": "Filter by Keywords",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3bf99fc6-6321-4099-802f-18044d95049f",
+              "name": "result",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        480
+      ],
+      "id": "b8eb319f-fae3-42db-a914-f57a2d21eaea",
+      "name": "Search result"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        480
+      ],
+      "id": "5ba712f8-3d4b-4e7c-ab2b-918307a1ac27",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "result"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        480
+      ],
+      "id": "df60ccfa-d415-47b9-8f44-88b09d5b2461",
+      "name": "Aggregate"
+    }
+  ],
+  "connections": {
+    "List files": {
+      "main": [
+        [
+          {
+            "node": "Filter only application/vnd.google-apps.document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter only application/vnd.google-apps.document": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KeyWords": {
+      "main": [
+        [
+          {
+            "node": "List files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "Filter by Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter by Keywords": {
+      "main": [
+        [
+          {
+            "node": "Search result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "KeyWords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search result": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "nodeGroups": []
+}

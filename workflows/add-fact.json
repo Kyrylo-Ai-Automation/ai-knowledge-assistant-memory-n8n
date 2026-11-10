@@ -1,0 +1,348 @@
+{
+  "name": "add fact",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "client_id"
+            },
+            {
+              "name": "fact_type"
+            },
+            {
+              "name": "fact_value"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        96
+      ],
+      "id": "e43efb7b-ee4f-46a2-ad2a-5d4061b78495",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_ID",
+          "mode": "list",
+          "cachedResultName": "client_facts"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_id",
+              "keyValue": "={{ $json.client_id }}"
+            },
+            {
+              "keyName": "fact_type",
+              "keyValue": "={{ $json.fact_type }}"
+            },
+            {
+              "keyName": "fact_value",
+              "keyValue": "={{ $json.fact_value }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        96
+      ],
+      "id": "2513ee4a-165e-4ee2-9dab-ed9df2a27817",
+      "name": "Get existing fact",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a54cd039-6a86-4f98-957c-bf89585da8d3",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        96
+      ],
+      "id": "60ead421-8897-42e9-9745-5dfad81ee5f0",
+      "name": "if fact exists"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_ID",
+          "mode": "list",
+          "cachedResultName": "client_facts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "client_id": "={{ $('When Executed by Another Workflow').item.json.client_id }}",
+            "fact_type": "={{ $('When Executed by Another Workflow').item.json.fact_type }}",
+            "fact_value": "={{ $('When Executed by Another Workflow').item.json.fact_value }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "fact_type",
+              "displayName": "fact_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "fact_value",
+              "displayName": "fact_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "f1224995-986a-47f2-998d-fc42f5b55fe0",
+      "name": "Create new fact"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YOUR_ID",
+          "mode": "list",
+          "cachedResultName": "client_facts"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fact_value": "={{ $('When Executed by Another Workflow').item.json.fact_value }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fact_type",
+              "displayName": "fact_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fact_value",
+              "displayName": "fact_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "741e84ac-273a-4daa-91b5-acae7bf3a548",
+      "name": "Update row(s)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c6cbf64-24dc-4de6-88af-05207f80ca5a",
+              "name": "result",
+              "value": "Fact updated successfully",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "43c69371-3bf6-4284-b85f-754a003675b0",
+      "name": "fact update"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c6cbf64-24dc-4de6-88af-05207f80ca5a",
+              "name": "result",
+              "value": "Fact created successfully",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        208
+      ],
+      "id": "b1842d52-52d1-44c4-8715-6384a7a40479",
+      "name": "New fact created"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get existing fact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get existing fact": {
+      "main": [
+        [
+          {
+            "node": "if fact exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if fact exists": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create new fact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "fact update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create new fact": {
+      "main": [
+        [
+          {
+            "node": "New fact created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "nodeGroups": []
+}
